@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ref, onValue } from "firebase/database";
 import { database } from "@/lib/firebase";
 import { toast } from "@/hooks/use-toast";
+import VideoUpload from "./VideoUpload";
 
 const Dashboard = () => {
   const [status, setStatus] = useState("connected");
@@ -28,7 +29,6 @@ const Dashboard = () => {
         
         setAlerts(prev => [newAlert, ...prev]);
         
-        // Show toast notification
         toast({
           title: "New Alert!",
           description: `${newAlert.type} detected at ${newAlert.location}`,
@@ -99,6 +99,9 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Video Upload */}
+            <VideoUpload />
           </div>
 
           {/* Alert Feed */}
