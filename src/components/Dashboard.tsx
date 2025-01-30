@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { ref, onValue } from "firebase/database";
+import { database } from "@/lib/firebase";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [status, setStatus] = useState("connected");
@@ -10,6 +13,31 @@ const Dashboard = () => {
       timestamp: new Date().toISOString(),
     },
   ]);
+
+  useEffect(() => {
+    const alertsRef = ref(database, 'alerts');
+    const unsubscribe = onValue(alertsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const newAlert = {
+          id: Date.now(),
+          type: data.type || "Alert",
+          location: data.location || "Unknown",
+          timestamp: data.timestamp || new Date().toISOString(),
+        };
+        
+        setAlerts(prev => [newAlert, ...prev]);
+        
+        // Show toast notification
+        toast({
+          title: "New Alert!",
+          description: `${newAlert.type} detected at ${newAlert.location}`,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <section className="section-padding pt-32">
@@ -45,13 +73,30 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Video Feed */}
+            {/* Hardware Status */}
             <div className="p-6 rounded-2xl card-gradient">
               <h3 className="text-sm font-medium text-black/60 mb-4">
-                Live Feed
+                Hardware Status
               </h3>
-              <div className="aspect-video bg-black/5 rounded-lg flex items-center justify-center">
-                <p className="text-black/40">No active feed</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span>ESP32</span>
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
+                    Connected
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Ultrasonic Sensor</span>
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
+                    Active
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Emergency Button</span>
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
+                    Ready
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -65,7 +110,7 @@ const Dashboard = () => {
               {alerts.map((alert) => (
                 <div
                   key={alert.id}
-                  className="p-4 rounded-lg bg-black/5 space-y-2"
+                  className="p-4 rounded-lg bg-black/5 space-y-2 animate-fade-in"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{alert.type}</span>
