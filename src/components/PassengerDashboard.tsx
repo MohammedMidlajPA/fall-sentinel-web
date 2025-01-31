@@ -27,8 +27,8 @@ const PassengerDashboard = () => {
       });
       
       toast({
-        title: "Report Submitted",
-        description: "Your report has been successfully submitted.",
+        title: "Report Submitted Successfully",
+        description: "Thank you for your report. We will investigate and solve the issue soon.",
       });
       
       setFormData({
