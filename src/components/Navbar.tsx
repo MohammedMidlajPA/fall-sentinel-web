@@ -7,8 +7,8 @@ const Navbar = () => {
 
   const links = [
     { href: "/", label: "Home" },
-    { href: "/features", label: "Features" },
-    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard", label: "Passenger Dashboard" },
+    { href: "/admin", label: "Admin Dashboard" },
   ];
 
   return (
