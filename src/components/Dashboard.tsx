@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import VideoUpload from "./VideoUpload";
 
 const Dashboard = () => {
-  const [status, setStatus] = useState("connected");
+  const [status, setStatus] = useState("offline");
   const [alerts, setAlerts] = useState([
     {
       id: 1,
@@ -63,13 +63,13 @@ const Dashboard = () => {
                 <h3 className="text-sm font-medium text-black/60 mb-4">
                   Active Sensors
                 </h3>
-                <p className="text-3xl font-semibold">12/12</p>
+                <p className="text-3xl font-semibold">0/12</p>
               </div>
               <div className="p-6 rounded-2xl card-gradient">
                 <h3 className="text-sm font-medium text-black/60 mb-4">
                   Response Time
                 </h3>
-                <p className="text-3xl font-semibold">124ms</p>
+                <p className="text-3xl font-semibold">--</p>
               </div>
             </div>
 
@@ -81,20 +81,20 @@ const Dashboard = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>ESP32</span>
-                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
-                    Connected
+                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                    Offline
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Ultrasonic Sensor</span>
-                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
-                    Active
+                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                    Offline
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Emergency Button</span>
-                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
-                    Ready
+                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                    Offline
                   </span>
                 </div>
               </div>
