@@ -1,38 +1,27 @@
-import { useState, useEffect } from "react";
-import { ref, onValue } from "firebase/database";
-import { database } from "@/lib/firebase";
-import { toast } from "@/hooks/use-toast";
-import VideoUpload from "./VideoUpload";
+import { useEffect, useState } from "react";
+import { ref, onValue } from 'firebase/database';
+import { database } from '@/lib/firebase';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+interface Report {
+  trainNumber: string;
+  cabin: string;
+  problem: string;
+  location: string;
+  description: string;
+  timestamp: string;
+  status: "pending" | "resolved";
+}
 
 const Dashboard = () => {
-  const [status, setStatus] = useState("offline");
-  const [alerts, setAlerts] = useState([
-    {
-      id: 1,
-      type: "Fall Detected",
-      location: "Platform 3",
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  const [reports, setReports] = useState<Record<string, Report>>({});
 
   useEffect(() => {
-    const alertsRef = ref(database, 'alerts');
-    const unsubscribe = onValue(alertsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const newAlert = {
-          id: Date.now(),
-          type: data.type || "Alert",
-          location: data.location || "Unknown",
-          timestamp: data.timestamp || new Date().toISOString(),
-        };
-        
-        setAlerts(prev => [newAlert, ...prev]);
-        
-        toast({
-          title: "New Alert!",
-          description: `${newAlert.type} detected at ${newAlert.location}`,
-        });
+    const reportsRef = ref(database, 'reports');
+    const unsubscribe = onValue(reportsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setReports(snapshot.val());
       }
     });
 
@@ -40,95 +29,71 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <section className="section-padding pt-32">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">System Dashboard</h2>
-          <div
-            className={`px-4 py-2 rounded-full text-sm ${
-              status === "connected"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {status === "connected" ? "System Online" : "System Offline"}
-          </div>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Sensors</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0/12</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="flex h-3 w-3 rounded-full bg-red-500 mr-2" />
+              Offline
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Status Cards */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-6 rounded-2xl card-gradient">
-                <h3 className="text-sm font-medium text-black/60 mb-4">
-                  Active Sensors
-                </h3>
-                <p className="text-3xl font-semibold">0/12</p>
-              </div>
-              <div className="p-6 rounded-2xl card-gradient">
-                <h3 className="text-sm font-medium text-black/60 mb-4">
-                  Response Time
-                </h3>
-                <p className="text-3xl font-semibold">--</p>
-              </div>
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Response Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">--</div>
+            <p className="text-xs text-muted-foreground">System Offline</p>
+          </CardContent>
+        </Card>
 
-            {/* Hardware Status */}
-            <div className="p-6 rounded-2xl card-gradient">
-              <h3 className="text-sm font-medium text-black/60 mb-4">
-                Hardware Status
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>ESP32</span>
-                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
-                    Offline
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Ultrasonic Sensor</span>
-                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
-                    Offline
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Emergency Button</span>
-                  <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
-                    Offline
-                  </span>
-                </div>
-              </div>
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>System Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-500">Offline</div>
+            <p className="text-xs text-muted-foreground">All systems inactive</p>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Video Upload */}
-            <VideoUpload />
-          </div>
-
-          {/* Alert Feed */}
-          <div className="rounded-2xl card-gradient p-6">
-            <h3 className="text-sm font-medium text-black/60 mb-4">
-              Recent Alerts
-            </h3>
-            <div className="space-y-4">
-              {alerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="p-4 rounded-lg bg-black/5 space-y-2 animate-fade-in"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{alert.type}</span>
-                    <span className="text-sm text-black/40">
-                      {new Date(alert.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-black/60">{alert.location}</p>
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Recent Reports</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Object.entries(reports).map(([id, report]) => (
+            <Card key={id}>
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  Train {report.trainNumber}
+                  <Badge variant={report.status === "pending" ? "destructive" : "default"}>
+                    {report.status}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p><strong>Cabin:</strong> {report.cabin}</p>
+                  <p><strong>Problem:</strong> {report.problem}</p>
+                  <p><strong>Location:</strong> {report.location}</p>
+                  <p><strong>Description:</strong> {report.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Reported: {new Date(report.timestamp).toLocaleString()}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
